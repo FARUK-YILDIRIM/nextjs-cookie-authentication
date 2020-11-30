@@ -2,6 +2,7 @@ const next = require("next");
 const express = require("express");
 const axios = require("axios");
 const cookieParser = require("cookie-parser");
+const { signedCookies } = require("cookie-parser");
 const dev = process.env.NODE_ENV !== "production";
 const port = process.env.PORT || 3000;
 const app = next({ dev });
@@ -45,6 +46,19 @@ app.prepare().then(() => {
     };
     res.cookie("token", userData, COOKIE_OPTIONS);
     res.json(userData);
+  });
+
+  server.get("/api/profile", async (req, res) => {
+    const { signedCookies = {} } = req;
+    const { token } = signedCookies;
+    if (token && token.email) {
+      const { data } = await axios.get(
+        "https://jsonplaceholder.typicode.com/users"
+      );
+      const userProfile = data.find((user) => user.email == token.email);
+      return res.json({ user: userProfile });
+    }
+    res.sendStatus(404);
   });
 
   server.get("*", (req, res) => {

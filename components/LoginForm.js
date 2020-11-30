@@ -1,4 +1,5 @@
 import React from "react";
+import Router from "next/router";
 import { loginUser } from "../lib/auth";
 
 class LoginForm extends React.Component {
@@ -14,8 +15,9 @@ class LoginForm extends React.Component {
   handleSubmit = (event) => {
     const { email, password } = this.state;
     event.preventDefault();
-    //console.log(this.state);
-    loginUser(email, password);
+    loginUser(email, password).then(() => {
+      Router.push("/profile");
+    });
   };
 
   render() {
